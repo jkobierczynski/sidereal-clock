@@ -160,13 +160,32 @@
     min-height:0;
   }
 
+  /* ---- position: dial(s) + digital plaque, arranged by state.digitalPosition ---- */
+  .stage.pos-right{ flex-direction:row; }
+  .stage.pos-left{ flex-direction:row-reverse; }
+  .stage.pos-left, .stage.pos-right{ flex-wrap:wrap; }
+
+  .dials{
+    display:flex; align-items:center; justify-content:center;
+    gap:clamp(20px, 4vw, 48px); flex-wrap:wrap;
+  }
+  .dial-unit{ display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .dial-caption{ display:none; }
+  .dials.show-both .dial-caption{ display:block; }
+  .dials.show-sidereal [data-kind="local"]{ display:none; }
+  .dials.show-local [data-kind="sidereal"]{ display:none; }
+
   .dial-wrap{
     position:relative;
     width:min(64vh, 62vw, 620px);
     aspect-ratio:1/1;
     filter:drop-shadow(0 18px 40px rgba(0,0,0,.55));
   }
-  .stage.layout-digital .dial-wrap{ display:none; }
+  .dials.show-both .dial-wrap{ width:min(46vh, 38vw, 420px); }
+  .stage.pos-left .dial-wrap, .stage.pos-right .dial-wrap{ width:min(48vh, 40vw, 460px); }
+  .stage.pos-left .dials.show-both .dial-wrap, .stage.pos-right .dials.show-both .dial-wrap{ width:min(34vh, 24vw, 320px); }
+
+  .stage.layout-digital .dials{ display:none; }
   .stage.layout-analog .plaque{ display:none; }
   .stage.layout-digital .plaque{ width:min(90vw, 720px); }
   .stage.layout-digital .plaque .lst-num{ font-size:clamp(3rem, 11vw, 7rem); }
@@ -182,9 +201,9 @@
   .tick-cardinal{ stroke:var(--brass-dim); stroke-width:3; }
 
   /* show only the tick/numeral layer matching the chosen dial face */
-  #ticksLayer12, #numeralsLayer12{ display:none; }
-  .dial-12h #ticksLayer, .dial-12h #numeralsLayer{ display:none; }
-  .dial-12h #ticksLayer12, .dial-12h #numeralsLayer12{ display:inline; }
+  .face-12{ display:none; }
+  .dial-12h .face-24{ display:none; }
+  .dial-12h .face-12{ display:inline; }
   .dial-numeral{
     font-family:var(--font-display); font-style:italic; font-weight:600;
     fill:var(--face-deep);
@@ -411,22 +430,46 @@
 
 <canvas id="stars"></canvas>
 
-<div class="stage layout-both" id="stage">
-  <div class="dial-wrap style-minimalist" id="dialWrap">
-    <svg class="dial" viewBox="0 0 400 400" id="dialSvg" aria-hidden="true">
-      <circle class="dial-rim-outer" cx="200" cy="200" r="196"/>
-      <circle class="dial-face" cx="200" cy="200" r="188"/>
-      <circle class="dial-rim" cx="200" cy="200" r="188"/>
-      <g id="ticksLayer"></g>
-      <g id="numeralsLayer"></g>
-      <g id="ticksLayer12"></g>
-      <g id="numeralsLayer12"></g>
-      <line id="handHour" class="hand hand-hour" x1="200" y1="200" x2="200" y2="92"/>
-      <line id="handMinute" class="hand hand-minute" x1="200" y1="200" x2="200" y2="58"/>
-      <line id="handSecond" class="hand hand-second" x1="200" y1="212" x2="200" y2="40"/>
-      <circle class="hub" cx="200" cy="200" r="7"/>
-      <circle class="hub-dot" cx="200" cy="200" r="2"/>
-    </svg>
+<div class="stage layout-both pos-beneath" id="stage">
+  <div class="dials show-sidereal" id="dialsWrapper">
+    <div class="dial-unit" data-kind="sidereal">
+      <div class="dial-caption label-eyebrow">Sidereal</div>
+      <div class="dial-wrap style-minimalist" id="dialWrapSidereal">
+        <svg class="dial" viewBox="0 0 400 400" aria-hidden="true">
+          <circle class="dial-rim-outer" cx="200" cy="200" r="196"/>
+          <circle class="dial-face" cx="200" cy="200" r="188"/>
+          <circle class="dial-rim" cx="200" cy="200" r="188"/>
+          <g id="ticksLayer-sidereal" class="face-24"></g>
+          <g id="numeralsLayer-sidereal" class="face-24"></g>
+          <g id="ticksLayer12-sidereal" class="face-12"></g>
+          <g id="numeralsLayer12-sidereal" class="face-12"></g>
+          <line id="handHour-sidereal" class="hand hand-hour" x1="200" y1="200" x2="200" y2="92"/>
+          <line id="handMinute-sidereal" class="hand hand-minute" x1="200" y1="200" x2="200" y2="58"/>
+          <line id="handSecond-sidereal" class="hand hand-second" x1="200" y1="212" x2="200" y2="40"/>
+          <circle class="hub" cx="200" cy="200" r="7"/>
+          <circle class="hub-dot" cx="200" cy="200" r="2"/>
+        </svg>
+      </div>
+    </div>
+    <div class="dial-unit" data-kind="local">
+      <div class="dial-caption label-eyebrow">Local</div>
+      <div class="dial-wrap style-minimalist" id="dialWrapLocal">
+        <svg class="dial" viewBox="0 0 400 400" aria-hidden="true">
+          <circle class="dial-rim-outer" cx="200" cy="200" r="196"/>
+          <circle class="dial-face" cx="200" cy="200" r="188"/>
+          <circle class="dial-rim" cx="200" cy="200" r="188"/>
+          <g id="ticksLayer-local" class="face-24"></g>
+          <g id="numeralsLayer-local" class="face-24"></g>
+          <g id="ticksLayer12-local" class="face-12"></g>
+          <g id="numeralsLayer12-local" class="face-12"></g>
+          <line id="handHour-local" class="hand hand-hour" x1="200" y1="200" x2="200" y2="92"/>
+          <line id="handMinute-local" class="hand hand-minute" x1="200" y1="200" x2="200" y2="58"/>
+          <line id="handSecond-local" class="hand hand-second" x1="200" y1="212" x2="200" y2="40"/>
+          <circle class="hub" cx="200" cy="200" r="7"/>
+          <circle class="hub-dot" cx="200" cy="200" r="2"/>
+        </svg>
+      </div>
+    </div>
   </div>
 
   <div class="plaque numerals-mechanical show-sidereal" id="plaque">
@@ -481,6 +524,25 @@
           <label class="radio-pill"><input type="radio" name="layout" value="analog"> Analog only</label>
           <label class="radio-pill"><input type="radio" name="layout" value="digital"> Digital only</label>
         </div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="label-eyebrow">Digital position</legend>
+        <div class="radio-row" id="digitalPositionGroup">
+          <label class="radio-pill"><input type="radio" name="digitalPosition" value="beneath" checked> Beneath dial</label>
+          <label class="radio-pill"><input type="radio" name="digitalPosition" value="right"> Right of dial</label>
+          <label class="radio-pill"><input type="radio" name="digitalPosition" value="left"> Left of dial</label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="label-eyebrow">Analog shows</legend>
+        <div class="radio-row" id="analogShowsGroup">
+          <label class="radio-pill"><input type="radio" name="analogShows" value="sidereal" checked> Sidereal dial</label>
+          <label class="radio-pill"><input type="radio" name="analogShows" value="local"> Local dial</label>
+          <label class="radio-pill"><input type="radio" name="analogShows" value="both"> Both dials</label>
+        </div>
+        <div class="hint">Two dials side by side — one sidereal, one local — share the same style and 12/24-hour face below.</div>
       </fieldset>
 
       <fieldset>
@@ -739,6 +801,8 @@
     digitalSeconds: true,
     digitalNumeral: 'mechanical',
     digitalShows: 'sidereal',
+    digitalPosition: 'beneath',
+    analogShows: 'sidereal',
     dialHours: '24',
     night: false,
     autoNight: false,
@@ -764,16 +828,14 @@
 
   /* ============================= DOM REFS ============================= */
   const $ = id => document.getElementById(id);
-  const stage = $('stage'), dialWrap = $('dialWrap'), plaque = $('plaque');
-  const handHour = $('handHour'), handMinute = $('handMinute'), handSecond = $('handSecond');
+  const stage = $('stage'), dialsWrapper = $('dialsWrapper'), plaque = $('plaque');
+  const dialWrapSidereal = $('dialWrapSidereal'), dialWrapLocal = $('dialWrapLocal');
   const lstNum = $('lstNum'), plaqueSub = $('plaqueSub');
   const localNum = $('localNum'), localPeriod = $('localPeriod');
   const fUtc = $('fUtc'), fLocal = $('fLocal'), fGmst = $('fGmst'), fSun = $('fSun'), fLoc = $('fLoc');
 
-  /* ---- build dial ticks / numerals — a 24-hour face and a 12-hour face, toggled by state.dialHours ---- */
-  const ticksLayer = $('ticksLayer'), numeralsLayer = $('numeralsLayer');
-  const ticksLayer12 = $('ticksLayer12'), numeralsLayer12 = $('numeralsLayer12');
-
+  /* ---- build dial ticks / numerals — a 24-hour face and a 12-hour face, toggled by state.dialHours —
+         once per dial instance (sidereal, local), each with its own suffixed element IDs ---- */
   function addTick(layer, angle, cls, rOuter, rInner){
     const x1 = 200 + rOuter*Math.sin(angle), y1 = 200 - rOuter*Math.cos(angle);
     const x2 = 200 + rInner*Math.sin(angle), y2 = 200 - rInner*Math.cos(angle);
@@ -792,7 +854,12 @@
     layer.appendChild(t);
   }
 
-  (function buildDial24(){
+  function buildDialFace(suffix){
+    const ticksLayer = $('ticksLayer-'+suffix);
+    const numeralsLayer = $('numeralsLayer-'+suffix);
+    const ticksLayer12 = $('ticksLayer12-'+suffix);
+    const numeralsLayer12 = $('numeralsLayer12-'+suffix);
+
     for (let i=0;i<24;i++){
       const angle = i*15*D2R;
       const isCardinal = i%6===0;
@@ -802,9 +869,6 @@
       addTick(ticksLayer, angle, 'tick-'+(isCardinal?'cardinal':(isMajor?'major':'minor')), rOuter, rInner);
       if (isMajor) addNumeral(numeralsLayer, angle, 140, i);
     }
-  })();
-
-  (function buildDial12(){
     // 60 five-minute marks, like a familiar clock face: 12 numerals, cardinal ticks at 12/3/6/9.
     for (let i=0;i<60;i++){
       const angle = i*6*D2R;
@@ -818,7 +882,18 @@
         addNumeral(numeralsLayer12, angle, 140, label);
       }
     }
-  })();
+
+    return {
+      handHour: $('handHour-'+suffix),
+      handMinute: $('handMinute-'+suffix),
+      handSecond: $('handSecond-'+suffix)
+    };
+  }
+
+  const dials = {
+    sidereal: buildDialFace('sidereal'),
+    local: buildDialFace('local')
+  };
 
   /* ============================= STARFIELD ============================= */
   const starCanvas = $('stars');
@@ -892,6 +967,8 @@
     setRadio('digitalFormat', state.digitalFormat);
     setRadio('digitalNumeral', state.digitalNumeral);
     setRadio('digitalShows', state.digitalShows);
+    setRadio('digitalPosition', state.digitalPosition);
+    setRadio('analogShows', state.analogShows);
     setRadio('dialHours', state.dialHours);
     setRadio('clockSource', state.clockSource);
     $('chkSeconds').checked = state.digitalSeconds;
@@ -910,8 +987,11 @@
   }
 
   function applyStyleClasses(){
-    stage.className = 'stage layout-' + state.layout;
-    dialWrap.className = 'dial-wrap style-' + state.analogStyle + ' dial-' + state.dialHours + 'h';
+    stage.className = 'stage layout-' + state.layout + ' pos-' + state.digitalPosition;
+    dialsWrapper.className = 'dials show-' + state.analogShows;
+    const dialClass = 'dial-wrap style-' + state.analogStyle + ' dial-' + state.dialHours + 'h';
+    dialWrapSidereal.className = dialClass;
+    dialWrapLocal.className = dialClass;
     plaque.className = 'plaque numerals-' + state.digitalNumeral + ' show-' + state.digitalShows;
     document.documentElement.dataset.mode = state.night ? 'night' : 'day';
     $('btnNight').classList.toggle('active', state.night);
@@ -929,6 +1009,8 @@
   document.querySelectorAll('input[name="digitalFormat"]').forEach(r=>r.addEventListener('change',()=>{ state.digitalFormat=getRadio('digitalFormat'); persist(); }));
   document.querySelectorAll('input[name="digitalNumeral"]').forEach(r=>r.addEventListener('change',()=>{ state.digitalNumeral=getRadio('digitalNumeral'); applyStyleClasses(); persist(); }));
   document.querySelectorAll('input[name="digitalShows"]').forEach(r=>r.addEventListener('change',()=>{ state.digitalShows=getRadio('digitalShows'); applyStyleClasses(); persist(); }));
+  document.querySelectorAll('input[name="digitalPosition"]').forEach(r=>r.addEventListener('change',()=>{ state.digitalPosition=getRadio('digitalPosition'); applyStyleClasses(); persist(); }));
+  document.querySelectorAll('input[name="analogShows"]').forEach(r=>r.addEventListener('change',()=>{ state.analogShows=getRadio('analogShows'); applyStyleClasses(); persist(); }));
   document.querySelectorAll('input[name="dialHours"]').forEach(r=>r.addEventListener('change',()=>{ state.dialHours=getRadio('dialHours'); applyStyleClasses(); persist(); }));
   $('chkSeconds').addEventListener('change', e=>{ state.digitalSeconds = e.target.checked; persist(); });
   $('chkNight').addEventListener('change', e=>{ state.night = e.target.checked; state.autoNight=false; $('chkAutoNight').checked=false; applyStyleClasses(); persist(); });
@@ -1049,6 +1131,25 @@
   });
 
   /* ============================= CLOCK ENGINE ============================= */
+  function getLocalHourFraction(nowMs, timeZone){
+    let parts;
+    try{
+      parts = new Intl.DateTimeFormat('en-US', {timeZone, hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false}).formatToParts(new Date(nowMs));
+    }catch(e){ return 0; }
+    const get = t => { const p = parts.find(pp=>pp.type===t); return p ? parseInt(p.value,10) : 0; };
+    let h = get('hour'); if (h===24) h = 0; // some locales render midnight as "24"
+    return h + get('minute')/60 + get('second')/3600;
+  }
+
+  function setHands(handSet, hourFrac){
+    const hourDeg = state.dialHours === '12' ? ((hourFrac%12)/12)*360 : (hourFrac/24)*360;
+    const minDeg = ((hourFrac*60)%60)/60*360;
+    const secDeg = ((hourFrac*3600)%60)/60*360;
+    handSet.handHour.setAttribute('transform', `rotate(${hourDeg} 200 200)`);
+    handSet.handMinute.setAttribute('transform', `rotate(${minDeg} 200 200)`);
+    handSet.handSecond.setAttribute('transform', `rotate(${secDeg} 200 200)`);
+  }
+
   function effectiveNowMs(){
     if (state.clockSource === 'custom'){
       if (state.customPlaying) return state.customBaseMs + (performance.now() - customCapturedPerf);
@@ -1067,13 +1168,9 @@
     let lst = gmst + state.lon/15;
     lst = ((lst % 24) + 24) % 24;
 
-    // analog hands — continuous sweep
-    const hourDeg = state.dialHours === '12' ? ((lst%12)/12)*360 : (lst/24)*360;
-    const minDeg = ((lst*60)%60)/60*360;
-    const secDeg = ((lst*3600)%60)/60*360;
-    handHour.setAttribute('transform', `rotate(${hourDeg} 200 200)`);
-    handMinute.setAttribute('transform', `rotate(${minDeg} 200 200)`);
-    handSecond.setAttribute('transform', `rotate(${secDeg} 200 200)`);
+    // analog hands — continuous sweep, one dial driven by sidereal time, one by local time
+    setHands(dials.sidereal, lst);
+    setHands(dials.local, getLocalHourFraction(nowMs, state.tz));
 
     // digital — sidereal time is always shown in 24-hour form
     let h = Math.floor(lst);
