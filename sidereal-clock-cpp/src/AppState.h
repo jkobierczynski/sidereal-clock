@@ -27,10 +27,12 @@ public:
     DigitalPosition digitalPosition = DigitalPosition::Beneath;
     ShowMode analogShows = ShowMode::Sidereal;
     QString dialHours = QStringLiteral("24"); // "24" or "12"
+    double dialScale = 1.0; // Ctrl+wheel over a main dial adjusts this
 
     bool polarisShowDial = true;
     bool polarisShowHA = true;
     PolarisZero polarisZero = PolarisZero::Top;
+    double polarisScale = 1.0; // Ctrl+wheel over the Polaris panel adjusts this
 
     bool night = false;
     bool autoNight = false;

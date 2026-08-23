@@ -1,5 +1,6 @@
 #include "DialWidget.h"
 #include <QPainter>
+#include <QWheelEvent>
 #include <QtMath>
 
 DialWidget::DialWidget(QWidget* parent) : QWidget(parent) {
@@ -10,6 +11,16 @@ void DialWidget::setTheme(const Theme& t) { theme_ = t; update(); }
 void DialWidget::setStyleMode(AnalogStyle s) { style_ = s; update(); }
 void DialWidget::setIs12Hour(bool is12) { is12_ = is12; update(); }
 void DialWidget::setHourFraction(double hf) { hourFraction_ = hf; update(); }
+
+void DialWidget::wheelEvent(QWheelEvent* event) {
+    if (event->modifiers() & Qt::ControlModifier) {
+        int steps = event->angleDelta().y() > 0 ? 1 : -1;
+        emit scaleRequested(steps);
+        event->accept();
+        return;
+    }
+    QWidget::wheelEvent(event);
+}
 
 // Angle convention throughout: 0 = straight up, positive = clockwise —
 // same as the web version's SVG rotate()/sin()/cos() convention, and

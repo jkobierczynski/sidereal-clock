@@ -21,6 +21,11 @@ public:
 private slots:
     void tick();
     void onStateChanged();
+    void adjustDialScale(int steps);
+    void adjustPolarisScale(int steps);
+
+protected:
+    bool eventFilter(QObject* watched, QEvent* event) override;
 
 private:
     void buildUi();

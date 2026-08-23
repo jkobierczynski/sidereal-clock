@@ -1,5 +1,6 @@
 #include "PolarisWidget.h"
 #include <QPainter>
+#include <QWheelEvent>
 #include <QtMath>
 
 PolarisWidget::PolarisWidget(QWidget* parent) : QWidget(parent) {
@@ -9,6 +10,16 @@ PolarisWidget::PolarisWidget(QWidget* parent) : QWidget(parent) {
 void PolarisWidget::setTheme(const Theme& t) { theme_ = t; update(); }
 void PolarisWidget::setZeroBottom(bool bottom) { zeroBottom_ = bottom; update(); }
 void PolarisWidget::setHourAngleHours(double ha) { ha_ = ha; update(); }
+
+void PolarisWidget::wheelEvent(QWheelEvent* event) {
+    if (event->modifiers() & Qt::ControlModifier) {
+        int steps = event->angleDelta().y() > 0 ? 1 : -1;
+        emit scaleRequested(steps);
+        event->accept();
+        return;
+    }
+    QWidget::wheelEvent(event);
+}
 
 static QPointF pointAt(double cx, double cy, double r, double angleRad) {
     return QPointF(cx + r * std::sin(angleRad), cy - r * std::cos(angleRad));

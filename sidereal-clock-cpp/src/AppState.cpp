@@ -61,10 +61,12 @@ void AppState::load() {
     digitalPosition = strToDigitalPosition(s.value("digitalPosition", digitalPositionToStr(digitalPosition)).toString());
     analogShows = strToShowMode(s.value("analogShows", showModeToStr(analogShows)).toString());
     dialHours = s.value("dialHours", dialHours).toString();
+    dialScale = s.value("dialScale", dialScale).toDouble();
 
     polarisShowDial = s.value("polarisShowDial", polarisShowDial).toBool();
     polarisShowHA = s.value("polarisShowHA", polarisShowHA).toBool();
     polarisZero = strToPolarisZero(s.value("polarisZero", polarisZeroToStr(polarisZero)).toString());
+    polarisScale = s.value("polarisScale", polarisScale).toDouble();
 
     night = s.value("night", night).toBool();
     autoNight = s.value("autoNight", autoNight).toBool();
@@ -96,10 +98,12 @@ void AppState::save() const {
     s.setValue("digitalPosition", digitalPositionToStr(digitalPosition));
     s.setValue("analogShows", showModeToStr(analogShows));
     s.setValue("dialHours", dialHours);
+    s.setValue("dialScale", dialScale);
 
     s.setValue("polarisShowDial", polarisShowDial);
     s.setValue("polarisShowHA", polarisShowHA);
     s.setValue("polarisZero", polarisZeroToStr(polarisZero));
+    s.setValue("polarisScale", polarisScale);
 
     s.setValue("night", night);
     s.setValue("autoNight", autoNight);

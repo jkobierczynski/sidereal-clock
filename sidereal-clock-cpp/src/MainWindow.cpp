@@ -8,7 +8,10 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QFrame>
+#include <QEvent>
+#include <QWheelEvent>
 #include <cmath>
+#include <algorithm>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     state_.load();
@@ -20,6 +23,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     buildUi();
     buildToolbar();
     buildFooter();
+
+    connect(dialSidereal_, &DialWidget::scaleRequested, this, &MainWindow::adjustDialScale);
+    connect(dialLocal_, &DialWidget::scaleRequested, this, &MainWindow::adjustDialScale);
+    connect(polarisDial_, &PolarisWidget::scaleRequested, this, &MainWindow::adjustPolarisScale);
+    polarisPanel_->installEventFilter(this);
 
     settingsPanel_->refreshFromState();
     settingsPanel_->setEffectiveNowProvider([this]() { return effectiveNowMs(); });
@@ -42,6 +50,8 @@ void MainWindow::buildUi() {
 
     dialSidereal_ = new DialWidget;
     dialLocal_ = new DialWidget;
+    dialSidereal_->setToolTip("Ctrl+scroll to resize");
+    dialLocal_->setToolTip("Ctrl+scroll to resize");
     captionSidereal_ = new QLabel("SIDEREAL");
     captionLocal_ = new QLabel("LOCAL");
     captionSidereal_->setAlignment(Qt::AlignCenter);
@@ -62,6 +72,8 @@ void MainWindow::buildUi() {
     polarisCaption_->setFont(capFont);
     polarisDial_ = new PolarisWidget;
     polarisDial_->setFixedSize(120, 120);
+    polarisDial_->setToolTip("Ctrl+scroll to resize");
+    polarisPanel_->setToolTip("Ctrl+scroll to resize");
     polarisHaCaption_ = new QLabel("Hour angle");
     polarisHaLabel_ = new QLabel("00:00");
     QFont haFont; haFont.setStyleHint(QFont::Monospace); haFont.setPointSize(16); haFont.setBold(true);
@@ -145,6 +157,29 @@ void MainWindow::buildFooter() {
     sb->addPermanentWidget(fLoc_);
 }
 
+bool MainWindow::eventFilter(QObject* watched, QEvent* event) {
+    if (watched == polarisPanel_ && event->type() == QEvent::Wheel) {
+        auto* we = static_cast<QWheelEvent*>(event);
+        if (we->modifiers() & Qt::ControlModifier) {
+            adjustPolarisScale(we->angleDelta().y() > 0 ? 1 : -1);
+            return true;
+        }
+    }
+    return QMainWindow::eventFilter(watched, event);
+}
+
+void MainWindow::adjustDialScale(int steps) {
+    state_.dialScale = std::clamp(state_.dialScale + steps * 0.05, 0.5, 2.5);
+    rebuildStage();
+    state_.save();
+}
+
+void MainWindow::adjustPolarisScale(int steps) {
+    state_.polarisScale = std::clamp(state_.polarisScale + steps * 0.05, 0.5, 2.5);
+    applyThemeAndStyles();
+    state_.save();
+}
+
 void MainWindow::onStateChanged() {
     bool resumedPlaying = (!prevCustomPlaying_ && state_.customPlaying);
     bool baseChanged = (state_.customBaseMs != prevCustomBaseMs_);
@@ -216,6 +251,9 @@ void MainWindow::applyThemeAndStyles() {
     polarisDial_->setVisible(state_.polarisShowDial);
     polarisHaLabel_->setVisible(state_.polarisShowHA);
     polarisHaCaption_->setVisible(state_.polarisShowHA);
+
+    int polarisDim = int(120 * state_.polarisScale);
+    polarisDial_->setFixedSize(polarisDim, polarisDim);
     polarisPanel_->adjustSize();
 }
 
@@ -255,7 +293,8 @@ void MainWindow::rebuildStage() {
     captionSidereal_->setVisible(showBoth);
     captionLocal_->setVisible(showBoth);
 
-    int dialDim = showBoth ? 300 : 420;
+    int baseDim = showBoth ? 300 : 420;
+    int dialDim = int(baseDim * state_.dialScale);
     dialSidereal_->setMinimumSize(dialDim, dialDim);
     dialLocal_->setMinimumSize(dialDim, dialDim);
 

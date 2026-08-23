@@ -18,8 +18,13 @@ public:
     void setIs12Hour(bool is12);
     void setHourFraction(double hf);
 
+signals:
+    // Ctrl+wheel over the dial — steps is +1/-1 per notch scrolled.
+    void scaleRequested(int steps);
+
 protected:
     void paintEvent(QPaintEvent*) override;
+    void wheelEvent(QWheelEvent* event) override;
     QSize sizeHint() const override { return QSize(360, 360); }
 
 private:

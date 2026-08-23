@@ -18,6 +18,7 @@ Feature parity with the web version, plus one native-only bonus:
 - The Polaris hour-angle position dial: a small instrument panel (top-left, out of the way of the main dial) showing Polaris riding the rim around a fixed North-Celestial-Pole crosshair, turning counter-clockwise as hour angle advances. The 0/24 mark can be set to top or bottom (the usual reticle conventions), and the dial and the HH:MM readout can each be shown or hidden independently.
 - Location (lat/lon/name), any IANA time zone, live or custom clock source (with play/pause), a manual sync correction, and settings that persist between runs (via `QSettings` — the Windows registry or an INI file on Linux, automatically).
 - Night mode (red-on-black), manual or automatic after astronomical dusk.
+- Resizable dials: hold **Ctrl** and scroll the mouse wheel over a main dial to grow or shrink it (0.5x–2.5x), and independently over the Polaris panel to resize just that HUD. Both sizes persist between runs.
 - **Bonus over the web version: a real NTP query.** A browser can't open a
   raw UDP socket, so the web version's "sync" was always manual (you type
   in a trusted time yourself). This native build can — Time & Sync →
