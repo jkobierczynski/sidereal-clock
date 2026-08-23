@@ -39,13 +39,6 @@ There's nothing to build. Download `sidereal-clock.html` and open it in any mode
 
 Everything runs client-side. The only network request the page makes is the Google Fonts stylesheet (Cormorant Garamond, Manrope, Martian Mono); if you need it fully offline, remove the `<link>` tags in `<head>` and it will fall back to the system font stack.
 
-### Installing it as an app
-
-The page ships a web manifest and the right meta tags to be installed as a standalone app:
-
-- **Android (Chrome)** — open the page, then "Add to Home screen." It launches full-screen with its own icon, no browser chrome.
-- **iOS (Safari)** — Share → "Add to Home Screen." Same result.
-
 ## Settings reference
 
 Open the gear icon (top right) for four tabs:
