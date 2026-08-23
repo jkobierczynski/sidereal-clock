@@ -31,6 +31,7 @@ This clock computes **Local Mean Sidereal Time (LMST)** from your longitude and 
 - **Clock source** — the live system clock, or a custom start date/time that keeps flowing forward from that point (with play/pause), for previewing sidereal time at another moment.
 - **Manual sync correction** — enter a trusted accurate time and the clock computes and applies an offset. Browsers can't speak raw NTP (it needs UDP, which isn't available from a web page), so a preferred-server list is kept as a reference only, not queried live — this manual "Sync now" is the honest working substitute.
 - **Night mode** — true red-on-black, toggled manually or automatically once the sun drops below −12° (astronomical dusk) at your location.
+- **Resizable dials** — hold **Ctrl** and scroll over a main dial to grow or shrink it (0.5x–2.5x), and independently over the Polaris panel to resize just that HUD.
 - **Settings persist** locally in the browser between visits (`localStorage`), including on reload.
 
 ## Getting started
