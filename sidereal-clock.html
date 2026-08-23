@@ -177,13 +177,13 @@
 
   .dial-wrap{
     position:relative;
-    width:min(64vh, 62vw, 620px);
+    width:calc(min(64vh, 62vw, 620px) * var(--dial-scale, 1));
     aspect-ratio:1/1;
     filter:drop-shadow(0 18px 40px rgba(0,0,0,.55));
   }
-  .dials.show-both .dial-wrap{ width:min(46vh, 38vw, 420px); }
-  .stage.pos-left .dial-wrap, .stage.pos-right .dial-wrap{ width:min(48vh, 40vw, 460px); }
-  .stage.pos-left .dials.show-both .dial-wrap, .stage.pos-right .dials.show-both .dial-wrap{ width:min(34vh, 24vw, 320px); }
+  .dials.show-both .dial-wrap{ width:calc(min(46vh, 38vw, 420px) * var(--dial-scale, 1)); }
+  .stage.pos-left .dial-wrap, .stage.pos-right .dial-wrap{ width:calc(min(48vh, 40vw, 460px) * var(--dial-scale, 1)); }
+  .stage.pos-left .dials.show-both .dial-wrap, .stage.pos-right .dials.show-both .dial-wrap{ width:calc(min(34vh, 24vw, 320px) * var(--dial-scale, 1)); }
 
   .stage.layout-digital .dials{ display:none; }
   .stage.layout-analog .plaque{ display:none; }
@@ -300,7 +300,7 @@
   .polaris-body{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; }
   .polaris-dial-wrap{
     position:relative;
-    width:min(20vh, 26vw, 130px);
+    width:calc(min(20vh, 26vw, 130px) * var(--polaris-scale, 1));
     aspect-ratio:1/1;
     filter:drop-shadow(0 10px 22px rgba(0,0,0,.45));
   }
@@ -315,7 +315,7 @@
 
   @media (max-width: 560px){
     .polaris-panel{ top:64px; left:10px; padding:8px 10px 8px; }
-    .polaris-dial-wrap{ width:min(16vh, 22vw, 92px); }
+    .polaris-dial-wrap{ width:calc(min(16vh, 22vw, 92px) * var(--polaris-scale, 1)); }
   }
 
   /* ============================= FOOTER STRIP ============================= */
@@ -467,7 +467,7 @@
 <canvas id="stars"></canvas>
 
 <div class="stage layout-both pos-beneath" id="stage">
-  <div class="dials show-sidereal" id="dialsWrapper">
+  <div class="dials show-sidereal" id="dialsWrapper" title="Ctrl+scroll to resize">
     <div class="dial-unit" data-kind="sidereal">
       <div class="dial-caption label-eyebrow">Sidereal</div>
       <div class="dial-wrap style-minimalist" id="dialWrapSidereal">
@@ -526,7 +526,7 @@
   </div>
 </div>
 
-<div class="polaris-panel" id="polarisPanel">
+<div class="polaris-panel" id="polarisPanel" title="Ctrl+scroll to resize">
   <div class="polaris-caption label-eyebrow">Polaris Hour Angle</div>
   <div class="polaris-body">
     <div class="polaris-dial-wrap" id="polarisDialWrap">
@@ -923,9 +923,11 @@
     digitalPosition: 'beneath',
     analogShows: 'sidereal',
     dialHours: '24',
+    dialScale: 1,
     polarisShowDial: true,
     polarisShowHA: true,
     polarisZero: 'top',
+    polarisScale: 1,
     night: false,
     autoNight: false,
     clockSource: 'live',
@@ -1043,6 +1045,33 @@
     polarisPanel.classList.toggle('hide-ha', !state.polarisShowHA);
   }
 
+  /* ---- Ctrl+scroll resizing: a shared scale for the main dial(s), and a
+         separate one for the Polaris dial, each clamped and persisted. ---- */
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+  function applyDialScale(){
+    dialsWrapper.style.setProperty('--dial-scale', state.dialScale);
+  }
+  function applyPolarisScale(){
+    polarisPanel.style.setProperty('--polaris-scale', state.polarisScale);
+  }
+
+  dialsWrapper.addEventListener('wheel', e => {
+    if (!e.ctrlKey) return;
+    e.preventDefault();
+    state.dialScale = clamp(+(state.dialScale + (e.deltaY > 0 ? -0.05 : 0.05)).toFixed(2), 0.5, 2.5);
+    applyDialScale();
+    persist();
+  }, { passive: false });
+
+  polarisPanel.addEventListener('wheel', e => {
+    if (!e.ctrlKey) return;
+    e.preventDefault();
+    state.polarisScale = clamp(+(state.polarisScale + (e.deltaY > 0 ? -0.05 : 0.05)).toFixed(2), 0.5, 2.5);
+    applyPolarisScale();
+    persist();
+  }, { passive: false });
+
   /* ============================= STARFIELD ============================= */
   const starCanvas = $('stars');
   const sctx = starCanvas.getContext('2d');
@@ -1148,6 +1177,8 @@
     plaque.className = 'plaque numerals-' + state.digitalNumeral + ' show-' + state.digitalShows;
     document.documentElement.dataset.mode = state.night ? 'night' : 'day';
     $('btnNight').classList.toggle('active', state.night);
+    applyDialScale();
+    applyPolarisScale();
   }
 
   function updateSyncDisplay(){
