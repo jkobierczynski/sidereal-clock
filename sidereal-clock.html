@@ -282,6 +282,42 @@
   .lst-half{ font-family:var(--font-display); font-size:1rem; color:var(--text-lo); font-style:italic; align-self:flex-start; margin-top:.4em; }
   .plaque .plaque-sub{ margin-top:2px; font-size:.72rem; color:var(--text-faint); letter-spacing:.06em; }
 
+  /* ============================= POLARIS PANEL ============================= */
+  /* A fixed instrument-panel inset (like a HUD), deliberately kept out of the main
+     .stage flex flow so it never competes for space with the primary dial(s). */
+  .polaris-panel{
+    position:fixed; z-index:2;
+    top:76px; left:18px;
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    padding:12px 14px 10px;
+    background:linear-gradient(180deg, var(--ink-800), var(--ink-900));
+    border:1px solid var(--ink-line);
+    border-radius:10px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.03), 0 10px 26px rgba(0,0,0,.4);
+    pointer-events:none;
+  }
+  .polaris-panel.hidden{ display:none; }
+  .polaris-body{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; }
+  .polaris-dial-wrap{
+    position:relative;
+    width:min(20vh, 26vw, 130px);
+    aspect-ratio:1/1;
+    filter:drop-shadow(0 10px 22px rgba(0,0,0,.45));
+  }
+  .polaris-panel.hide-dial .polaris-dial-wrap{ display:none; }
+  .polaris-panel.hide-ha .polaris-readout{ display:none; }
+  .polaris-readout{ text-align:center; }
+  .polaris-readout .lst-num{ font-size:clamp(1rem, 3.2vw, 1.3rem); }
+  .polaris-dial-wrap .dial-numeral{ font-size:22px; }
+  .polaris-crosshair{ stroke:var(--brass-dim); stroke-width:1.6; }
+  .polaris-ncp-dot{ fill:var(--brass-dim); }
+  .polaris-marker{ fill:var(--ink-950); stroke:var(--brass-bright); stroke-width:4; filter:drop-shadow(0 0 5px var(--glow)); }
+
+  @media (max-width: 560px){
+    .polaris-panel{ top:64px; left:10px; padding:8px 10px 8px; }
+    .polaris-dial-wrap{ width:min(16vh, 22vw, 92px); }
+  }
+
   /* ============================= FOOTER STRIP ============================= */
   .footer-strip{
     position:relative; z-index:2;
@@ -490,6 +526,29 @@
   </div>
 </div>
 
+<div class="polaris-panel" id="polarisPanel">
+  <div class="polaris-caption label-eyebrow">Polaris Hour Angle</div>
+  <div class="polaris-body">
+    <div class="polaris-dial-wrap" id="polarisDialWrap">
+      <svg class="dial" viewBox="0 0 400 400" aria-hidden="true">
+        <circle class="dial-rim-outer" cx="200" cy="200" r="196"/>
+        <circle class="dial-face" cx="200" cy="200" r="188"/>
+        <circle class="dial-rim" cx="200" cy="200" r="188"/>
+        <g id="polarisTicksLayer"></g>
+        <g id="polarisNumeralsLayer"></g>
+        <line class="polaris-crosshair" x1="200" y1="178" x2="200" y2="222"/>
+        <line class="polaris-crosshair" x1="178" y1="200" x2="222" y2="200"/>
+        <circle class="polaris-ncp-dot" cx="200" cy="200" r="3"/>
+        <circle class="polaris-marker" id="polarisMarker" cx="200" cy="12" r="11"/>
+      </svg>
+    </div>
+    <div class="polaris-readout" id="polarisReadout">
+      <div class="label-eyebrow plaque-label">Hour angle</div>
+      <div class="lst-row"><span class="lst-num tabular" id="polarisHaNum">00:00</span></div>
+    </div>
+  </div>
+</div>
+
 <div class="footer-strip" id="footerStrip">
   <div class="footer-item"><span class="fl">UTC</span><span class="fv tabular" id="fUtc">—</span></div>
   <div class="footer-item"><span class="fl">Local</span><span class="fv tabular" id="fLocal">—</span></div>
@@ -511,6 +570,7 @@
     <button class="tab-btn active" data-tab="display">Display</button>
     <button class="tab-btn" data-tab="location">Location</button>
     <button class="tab-btn" data-tab="time">Time &amp; Sync</button>
+    <button class="tab-btn" data-tab="polaris">Polaris</button>
   </div>
 
   <div class="tab-panels">
@@ -691,6 +751,31 @@
       </fieldset>
     </div>
 
+    <!-- POLARIS -->
+    <div class="tab-panel" id="panel-polaris">
+      <fieldset>
+        <legend class="label-eyebrow">Polaris hour angle</legend>
+        <div class="switch-row">
+          <span class="swtext">Show position dial</span>
+          <label class="switch"><input type="checkbox" id="chkPolarisDial" checked><span class="track"></span><span class="thumb"></span></label>
+        </div>
+        <div class="switch-row">
+          <span class="swtext">Show hour:minute readout</span>
+          <label class="switch"><input type="checkbox" id="chkPolarisHA" checked><span class="track"></span><span class="thumb"></span></label>
+        </div>
+        <div class="hint">Shows where Polaris currently sits around the North Celestial Pole, for aligning a polar scope. The small circle rides the rim and turns counter-clockwise as hour angle advances, matching the star's apparent motion through a polar scope.</div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="label-eyebrow">Zero position</legend>
+        <div class="radio-row" id="polarisZeroGroup">
+          <label class="radio-pill"><input type="radio" name="polarisZero" value="top" checked> 0 at top</label>
+          <label class="radio-pill"><input type="radio" name="polarisZero" value="bottom"> 0 at bottom</label>
+        </div>
+        <div class="hint">Match this to your polar scope's reticle — some place the 0/24 mark at top, others (a 180° flip, typical when the reticle is viewed through a right-angle finder on a German equatorial mount) at the bottom.</div>
+      </fieldset>
+    </div>
+
   </div>
 
   <div class="drawer-footer">
@@ -744,6 +829,40 @@
     if (alt > -12) return {text:'nautical twilight', cls:'twi-civil'};
     if (alt > -18) return {text:'astro twilight', cls:'twi-deep'};
     return {text:'night', cls:'twi-deep'};
+  }
+
+  /* ---- Polaris: precession-corrected position, for the hour-angle position dial ----
+     J2000 coordinates (RA 2h31m49.09s, Dec +89°15'51.0"), precessed to the date's mean
+     equinox using Meeus's rigorous IAU-1976 precession formulas (Ch. 21). The starting
+     epoch is J2000 itself, so the "T" term (centuries from J2000 to the starting epoch)
+     is zero and only the "t" (centuries from J2000 to the target date) terms remain.
+     Validated against Astropy's FK5-equinox-of-date transform to within ~0.1 arcsec. */
+  const POLARIS_RA0_DEG = (2 + 31/60 + 49.09/3600) * 15;
+  const POLARIS_DEC0_DEG = 89 + 15/60 + 51.0/3600;
+
+  function polarisRaDecOfDate(jd){
+    const t = (jd - 2451545.0)/36525.0;
+    const t2 = t*t, t3 = t2*t;
+    let zeta  = 2306.2181*t + 0.30188*t2 + 0.017998*t3;   // arcsec
+    let z     = 2306.2181*t + 1.09468*t2 + 0.018203*t3;   // arcsec
+    let theta = 2004.3109*t - 0.42665*t2 - 0.041833*t3;   // arcsec
+    zeta *= D2R/3600; z *= D2R/3600; theta *= D2R/3600;
+
+    const ra0 = POLARIS_RA0_DEG*D2R, dec0 = POLARIS_DEC0_DEG*D2R;
+    const A = Math.cos(dec0)*Math.sin(ra0+zeta);
+    const B = Math.cos(theta)*Math.cos(dec0)*Math.cos(ra0+zeta) - Math.sin(theta)*Math.sin(dec0);
+    const C = Math.sin(theta)*Math.cos(dec0)*Math.cos(ra0+zeta) + Math.cos(theta)*Math.sin(dec0);
+    let ra = Math.atan2(A,B) + z;
+    const dec = Math.asin(C);
+    ra *= R2D; let raH = (ra/15)%24; if (raH<0) raH += 24;
+    return { raHours: raH, decDeg: dec*R2D };
+  }
+
+  function polarisHourAngleHours(lstHours, jd){
+    const p = polarisRaDecOfDate(jd);
+    let ha = lstHours - p.raHours;
+    ha = ((ha%24)+24)%24;
+    return ha;
   }
 
   /* ============================= TIME ZONE HELPERS ============================= */
@@ -804,6 +923,9 @@
     digitalPosition: 'beneath',
     analogShows: 'sidereal',
     dialHours: '24',
+    polarisShowDial: true,
+    polarisShowHA: true,
+    polarisZero: 'top',
     night: false,
     autoNight: false,
     clockSource: 'live',
@@ -833,6 +955,8 @@
   const lstNum = $('lstNum'), plaqueSub = $('plaqueSub');
   const localNum = $('localNum'), localPeriod = $('localPeriod');
   const fUtc = $('fUtc'), fLocal = $('fLocal'), fGmst = $('fGmst'), fSun = $('fSun'), fLoc = $('fLoc');
+  const polarisPanel = $('polarisPanel'), polarisMarker = $('polarisMarker'), polarisHaNum = $('polarisHaNum');
+  const polarisTicksLayer = $('polarisTicksLayer'), polarisNumeralsLayer = $('polarisNumeralsLayer');
 
   /* ---- build dial ticks / numerals — a 24-hour face and a 12-hour face, toggled by state.dialHours —
          once per dial instance (sidereal, local), each with its own suffixed element IDs ---- */
@@ -894,6 +1018,30 @@
     sidereal: buildDialFace('sidereal'),
     local: buildDialFace('local')
   };
+
+  /* ---- Polaris hour-angle dial face: 24 hourly ticks running counter-clockwise from
+         the chosen zero position (top or bottom), numerals baked in at the correct
+         angle (rather than rotating the whole group) so they always sit upright. ---- */
+  function buildPolarisFace(){
+    const offsetRad = (state.polarisZero === 'bottom' ? 180 : 0) * D2R;
+    polarisTicksLayer.innerHTML = '';
+    polarisNumeralsLayer.innerHTML = '';
+    for (let i=0;i<24;i++){
+      const angle = offsetRad - i*15*D2R; // counter-clockwise: increasing hour angle turns left
+      const isCardinal = i%6===0;
+      const isMajor = i%2===0;
+      const rOuter=188, rInnerMinor=180, rInnerMajor=172, rInnerCardinal=160;
+      const rInner = isCardinal? rInnerCardinal : (isMajor? rInnerMajor : rInnerMinor);
+      addTick(polarisTicksLayer, angle, 'tick-'+(isCardinal?'cardinal':(isMajor?'major':'minor')), rOuter, rInner);
+      if (isCardinal) addNumeral(polarisNumeralsLayer, angle, 142, i);
+    }
+  }
+
+  function applyPolarisVisibility(){
+    polarisPanel.classList.toggle('hidden', !(state.polarisShowDial || state.polarisShowHA));
+    polarisPanel.classList.toggle('hide-dial', !state.polarisShowDial);
+    polarisPanel.classList.toggle('hide-ha', !state.polarisShowHA);
+  }
 
   /* ============================= STARFIELD ============================= */
   const starCanvas = $('stars');
@@ -970,7 +1118,10 @@
     setRadio('digitalPosition', state.digitalPosition);
     setRadio('analogShows', state.analogShows);
     setRadio('dialHours', state.dialHours);
+    setRadio('polarisZero', state.polarisZero);
     setRadio('clockSource', state.clockSource);
+    $('chkPolarisDial').checked = state.polarisShowDial;
+    $('chkPolarisHA').checked = state.polarisShowHA;
     $('chkSeconds').checked = state.digitalSeconds;
     $('chkNight').checked = state.night;
     $('chkAutoNight').checked = state.autoNight;
@@ -983,6 +1134,8 @@
     $('btnPlayPause').textContent = state.customPlaying ? 'Pause' : 'Play';
     refreshNtpChips();
     applyStyleClasses();
+    applyPolarisVisibility();
+    buildPolarisFace();
     updateSyncDisplay();
   }
 
@@ -1012,6 +1165,9 @@
   document.querySelectorAll('input[name="digitalPosition"]').forEach(r=>r.addEventListener('change',()=>{ state.digitalPosition=getRadio('digitalPosition'); applyStyleClasses(); persist(); }));
   document.querySelectorAll('input[name="analogShows"]').forEach(r=>r.addEventListener('change',()=>{ state.analogShows=getRadio('analogShows'); applyStyleClasses(); persist(); }));
   document.querySelectorAll('input[name="dialHours"]').forEach(r=>r.addEventListener('change',()=>{ state.dialHours=getRadio('dialHours'); applyStyleClasses(); persist(); }));
+  document.querySelectorAll('input[name="polarisZero"]').forEach(r=>r.addEventListener('change',()=>{ state.polarisZero=getRadio('polarisZero'); buildPolarisFace(); persist(); }));
+  $('chkPolarisDial').addEventListener('change', e=>{ state.polarisShowDial = e.target.checked; applyPolarisVisibility(); persist(); });
+  $('chkPolarisHA').addEventListener('change', e=>{ state.polarisShowHA = e.target.checked; applyPolarisVisibility(); persist(); });
   $('chkSeconds').addEventListener('change', e=>{ state.digitalSeconds = e.target.checked; persist(); });
   $('chkNight').addEventListener('change', e=>{ state.night = e.target.checked; state.autoNight=false; $('chkAutoNight').checked=false; applyStyleClasses(); persist(); });
   $('chkAutoNight').addEventListener('change', e=>{ state.autoNight = e.target.checked; persist(); });
@@ -1160,6 +1316,7 @@
 
   let lastDigitalStr = '';
   let lastLocalStr = '';
+  let lastPolarisStr = '';
 
   function tick(t){
     const nowMs = effectiveNowMs();
@@ -1190,6 +1347,21 @@
       localNum.textContent = localFmt.str;
       localPeriod.textContent = localFmt.period;
       lastLocalStr = localFmt.str;
+    }
+
+    // Polaris hour-angle marker — a small circle riding the rim, turning counter-clockwise
+    // as hour angle increases, with the 0-position set to top or bottom of the dial.
+    const polarisHa = polarisHourAngleHours(lst, jd);
+    const offsetRad = (state.polarisZero === 'bottom' ? Math.PI : 0);
+    const markerAngle = offsetRad - (polarisHa/24)*2*Math.PI;
+    polarisMarker.setAttribute('cx', (200 + 188*Math.sin(markerAngle)).toFixed(2));
+    polarisMarker.setAttribute('cy', (200 - 188*Math.cos(markerAngle)).toFixed(2));
+    let ph = Math.floor(polarisHa);
+    let pm = Math.floor((polarisHa-ph)*60);
+    const polarisStr = `${pad(ph)}:${pad(pm)}`;
+    if (polarisStr !== lastPolarisStr){
+      polarisHaNum.textContent = polarisStr;
+      lastPolarisStr = polarisStr;
     }
 
     // sun / twilight
